@@ -1,0 +1,269 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Tutorials &mdash; python-blosc 1.2.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.2.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="python-blosc 1.2.0 documentation" href="index.html" />
+    <link rel="next" title="Library Reference" href="reference.html" />
+    <link rel="prev" title="Installation" href="install.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="reference.html" title="Library Reference"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="install.html" title="Installation"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">python-blosc 1.2.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="tutorials">
+<h1>Tutorials<a class="headerlink" href="#tutorials" title="Permalink to this headline">¶</a></h1>
+<p>Using <tt class="docutils literal"><span class="pre">python-blosc</span></tt> (or just <tt class="docutils literal"><span class="pre">blosc</span></tt>, because we are going to talk always on
+how to use it in a Python environment) is pretty easy.  It basically mimics
+the API of the <tt class="docutils literal"><span class="pre">zlib</span></tt> module included in the standard Python library.</p>
+<p>Here are some examples on how to use it.  For the full documentation, please
+refer to the <a class="reference external" href="http://docs.python.org/distutils/commandref.html#reference" title="(in Python v2.7)"><em>Command Reference</em></a> section.</p>
+<p>Most of the times in this tutorial have been obtained using a VM with 2 cores
+on top of a Intel(R) Core(TM) i5-3380M CPU &#64; 2.90GHz.</p>
+<div class="section" id="compressing-and-decompressing-with-blosc">
+<h2>Compressing and decompressing with <tt class="docutils literal"><span class="pre">blosc</span></tt><a class="headerlink" href="#compressing-and-decompressing-with-blosc" title="Permalink to this headline">¶</a></h2>
+<p>Let&#8217;s start creating a NumPy array with 80 MB full of data:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mf">1e7</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bytes_array</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">tostring</span><span class="p">()</span>  <span class="c"># get a bytes stream</span>
+</pre></div>
+</div>
+<p>and let&#8217;s compare Blosc operation with <tt class="docutils literal"><span class="pre">zlib</span></tt> (please note that we are
+using IPython for leveraging its timing capabilities):</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">zlib</span>
+<span class="go">&gt;&gt;&gt;%time zpacked = zlib.compress(bytes_array)</span>
+<span class="go">CPU times: user 5.17 s, sys: 14 ms, total: 5.19 s</span>
+<span class="go">Wall time: 5.2 s    # ~ 15 MB/s</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">blosc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="o">%</span><span class="n">time</span> <span class="n">bpacked</span> <span class="o">=</span> <span class="n">blosc</span><span class="o">.</span><span class="n">compress</span><span class="p">(</span><span class="n">bytes_array</span><span class="p">,</span> <span class="n">typesize</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+<span class="go">CPU times: user 125 ms, sys: 0 ns, total: 125 ms</span>
+<span class="go">Wall time: 38.8 ms  # ~ 2.0 GB/s and 130x faster than zlib</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="o">%</span><span class="n">time</span> <span class="n">acp</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>   <span class="c"># a direct copy using memcpy() behind the scenes</span>
+<span class="go">CPU times: user 15 ms, sys: 8 ms, total: 23 ms</span>
+<span class="go">Wall time: 22.6 ms  # ~ 3.5 GB/s, just a 1.7x faster than Blosc</span>
+</pre></div>
+</div>
+<p>Now, see at the compression ratios:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">zpacked</span><span class="p">)</span>
+<span class="go">52994692</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">bytes_array</span><span class="p">)</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">zpacked</span><span class="p">))</span>
+<span class="go">1.5095851486409242   # zlib achieves a 1.5x compression ratio</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">bpacked</span><span class="p">)</span>
+<span class="go">7641156</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">bytes_array</span><span class="p">)</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">bpacked</span><span class="p">))</span>
+<span class="go">10.469620041784253   # blosc reaches more than 10x compression ratio</span>
+</pre></div>
+</div>
+<p>Wow, looks like Blosc is very efficient compressing binary data.  How
+to decompress?  Well, it is exactly the same way than Zlib:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="o">%</span><span class="n">time</span> <span class="n">bytes_array2</span> <span class="o">=</span> <span class="n">zlib</span><span class="o">.</span><span class="n">decompress</span><span class="p">(</span><span class="n">zpacked</span><span class="p">)</span>
+<span class="go">CPU times: user 345 ms, sys: 9 ms, total: 354 ms</span>
+<span class="go">Wall time: 354 ms   # ~ 225 MB/s</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="o">%</span><span class="n">time</span> <span class="n">bytes_array2</span> <span class="o">=</span> <span class="n">blosc</span><span class="o">.</span><span class="n">decompress</span><span class="p">(</span><span class="n">bpacked</span><span class="p">)</span>
+<span class="go">CPU times: user 82 ms, sys: 10 ms, total: 92 ms</span>
+<span class="go">Wall time: 36.3 ms   # ~ 2.2 GB/s and ~ 10x times faster than zlib</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="using-different-compressors-inside-blosc">
+<h2>Using different compressors inside Blosc<a class="headerlink" href="#using-different-compressors-inside-blosc" title="Permalink to this headline">¶</a></h2>
+<p>Since Blosc 1.3.0, you can use different compressors inside it.  That
+allows for these compressors to leverage Blosc powerful
+multi-threading and shuffling machinery.</p>
+<p>The examples above where using the default &#8216;blosclz&#8217; compressor.  Here
+there is another example using &#8216;zlib&#8217;:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="o">%</span><span class="n">time</span> <span class="n">bpacked</span> <span class="o">=</span> <span class="n">blosc</span><span class="o">.</span><span class="n">compress</span><span class="p">(</span><span class="n">bytes_array</span><span class="p">,</span> <span class="n">typesize</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">cname</span><span class="o">=</span><span class="s">&#39;zlib&#39;</span><span class="p">)</span>
+<span class="go">CPU times: user 1.09 s, sys: 15 ms, total: 1.1 s</span>
+<span class="go">Wall time: 290 ms   # ~ 275 MB/s and 18x faster than plain zlib</span>
+</pre></div>
+</div>
+<p>So, by using Zlib inside Blosc we can make it work at speeds that are
+up to 18x faster than plain Zlib.  How that can be?  Well, as said
+before, Blosc has efficient machinery for dealing with binary data
+(shuffling) and leveraging multithreading.  In addition, it uses block
+sizes for compressing data that are typically smaller than Zlib, so
+the cost for compressing is further reduced.</p>
+<p>In terms of compression ratio, &#8216;zlib&#8217; inside Blosc behaves very well
+too:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">bpacked</span><span class="p">)</span>
+<span class="go">1011304     #  ~ 7.5x smaller than blosclz and ~ 50x than plain zlib</span>
+</pre></div>
+</div>
+<p>So, &#8216;zlib&#8217; here can do a much better job than &#8216;blosclz&#8217;, although at
+the expenses of being slower (7.5x).</p>
+<p>Decompression speed is pretty good too:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="o">%</span><span class="n">time</span> <span class="n">bytes_array2</span> <span class="o">=</span> <span class="n">blosc</span><span class="o">.</span><span class="n">decompress</span><span class="p">(</span><span class="n">bpacked</span><span class="p">)</span>
+<span class="go">CPU times: user 209 ms, sys: 9 ms, total: 218 ms</span>
+<span class="go">Wall time: 67.6 ms  # ~ 1.2 GB/s and 5x faster than plain zlib</span>
+</pre></div>
+</div>
+<p>So, when mixing Zlib and Blosc, we can easily achieve decompression
+speeds above 1 GB/s, which is quite impressive for a relatively slow
+compressor like Zlib.</p>
+<p>You can play with other compressors too, like &#8216;lz4&#8217;, &#8216;lz4hc&#8217; and
+&#8216;snappy&#8217;. &#8216;lz4&#8217; and snappy are in the same class than &#8216;blosclz&#8217;, so
+you can expect similar results.  However, &#8216;lz4hc&#8217; is variation of
+&#8216;lz4&#8217; that typically spends more time compressing for a better
+compression ratio, so it is very good for read-only data.</p>
+</div>
+<div class="section" id="packaging-numpy-arrays">
+<h2>Packaging NumPy arrays<a class="headerlink" href="#packaging-numpy-arrays" title="Permalink to this headline">¶</a></h2>
+<p>Want to use <tt class="docutils literal"><span class="pre">blosc</span></tt> to compress and decompress NumPy objects without having to
+worry about passing the typesize for optimal compression, or having to create
+the final container for decompression?  <tt class="docutils literal"><span class="pre">blosc</span></tt> comes with the <tt class="docutils literal"><span class="pre">pack_array</span></tt>
+and <tt class="docutils literal"><span class="pre">unpack_array</span></tt> to perform this in a handy way:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mf">1e7</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="o">%</span><span class="n">time</span> <span class="n">packed</span> <span class="o">=</span> <span class="n">blosc</span><span class="o">.</span><span class="n">pack_array</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="go">CPU times: user 170 ms, sys: 17 ms, total: 187 ms</span>
+<span class="go">Wall time: 92 ms</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="o">%</span><span class="n">time</span> <span class="n">a2</span> <span class="o">=</span> <span class="n">blosc</span><span class="o">.</span><span class="n">unpack_array</span><span class="p">(</span><span class="n">packed</span><span class="p">)</span>
+<span class="go">CPU times: user 109 ms, sys: 15 ms, total: 124 ms</span>
+<span class="go">Wall time: 67.3 ms</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">alltrue</span><span class="p">(</span><span class="n">a</span> <span class="o">==</span> <span class="n">a2</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<p>Although this is a convenient way for compressing/decompressing NumPy
+arrays, this method uses pickle/unpickle behind the scenes.  This step
+implies additional copies, which takes both memory and time.</p>
+</div>
+<div class="section" id="compressing-from-a-data-pointer">
+<h2>Compressing from a data pointer<a class="headerlink" href="#compressing-from-a-data-pointer" title="Permalink to this headline">¶</a></h2>
+<p>For avoiding the data copy problem in the previous section, <tt class="docutils literal"><span class="pre">blosc</span></tt>
+comes with a couple of lower-level functions: <tt class="docutils literal"><span class="pre">compress_ptr</span></tt> and
+<tt class="docutils literal"><span class="pre">decompress_ptr</span></tt>.  Here are they in action:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">c</span> <span class="o">=</span> <span class="n">blosc</span><span class="o">.</span><span class="n">compress_ptr</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">__array_interface__</span><span class="p">[</span><span class="s">&#39;data&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">a</span><span class="o">.</span><span class="n">size</span><span class="p">,</span>
+<span class="go">                           a.dtype.itemsize, 9, True, &#39;lz4&#39;)</span>
+<span class="go">CPU times: user 65 ms, sys: 3 ms, total: 68 ms</span>
+<span class="go">Wall time: 19.2 ms</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a2</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">a</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">blosc</span><span class="o">.</span><span class="n">decompress_ptr</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">a2</span><span class="o">.</span><span class="n">__array_interface__</span><span class="p">[</span><span class="s">&#39;data&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+<span class="go">CPU times: user 49 ms, sys: 0 ns, total: 49 ms</span>
+<span class="go">Wall time: 14.5 ms</span>
+<span class="go">80000000L</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">(</span><span class="n">a</span> <span class="o">==</span> <span class="n">a2</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<p>As you see, these are really low level functions because you should
+pass actual pointers where the data is, as well as the size and
+itemsize (for compression).  Needless to say, it is very easy to cause
+a segfault by passing incorrect parameters to the functions (wrong
+pointer or wrong size).</p>
+<p>On the other hand, and contrarily to the <tt class="docutils literal"><span class="pre">pack_array</span></tt> / <tt class="docutils literal"><span class="pre">unpack_array</span></tt>
+method, the <tt class="docutils literal"><span class="pre">compress_ptr</span></tt> / <tt class="docutils literal"><span class="pre">decompress_ptr</span></tt> functions do not need to
+make internal copies of the data buffers, so they are extremely fast
+(as much as the C-Blosc library can be), but you have to provide a
+container when doing the de-serialization.</p>
+<p>It is up to you to decide between the convenience of <tt class="docutils literal"><span class="pre">pack_array</span></tt> /
+<tt class="docutils literal"><span class="pre">unpack_array</span></tt> functions or the speed of <tt class="docutils literal"><span class="pre">compress_ptr</span></tt> /
+<tt class="docutils literal"><span class="pre">decompress_ptr</span></tt>.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Tutorials</a><ul>
+<li><a class="reference internal" href="#compressing-and-decompressing-with-blosc">Compressing and decompressing with <tt class="docutils literal"><span class="pre">blosc</span></tt></a></li>
+<li><a class="reference internal" href="#using-different-compressors-inside-blosc">Using different compressors inside Blosc</a></li>
+<li><a class="reference internal" href="#packaging-numpy-arrays">Packaging NumPy arrays</a></li>
+<li><a class="reference internal" href="#compressing-from-a-data-pointer">Compressing from a data pointer</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="install.html"
+                        title="previous chapter">Installation</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="reference.html"
+                        title="next chapter">Library Reference</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/tutorial.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="reference.html" title="Library Reference"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="install.html" title="Installation"
+             >previous</a> |</li>
+        <li><a href="index.html">python-blosc 1.2.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010,2014 Francesc Alted, Valentin Hänel, Continuum Analytics.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

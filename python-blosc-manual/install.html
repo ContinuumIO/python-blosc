@@ -1,0 +1,210 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Installation &mdash; python-blosc 1.2.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.2.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="python-blosc 1.2.0 documentation" href="index.html" />
+    <link rel="next" title="Tutorials" href="tutorial.html" />
+    <link rel="prev" title="Introduction" href="intro.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="tutorial.html" title="Tutorials"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="intro.html" title="Introduction"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">python-blosc 1.2.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="installation">
+<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
+<p>python-blosc comes with C Blosc sources, so it does not depend on any other
+library (bar Python itself of course). Of course, if you are going to install
+from sources, you are going to need a C compiler (GCC, clang and MSVC
+2008/2010/2012 have been tested).</p>
+<p>Also, there are situations where you may want to link with an already existing
+Blosc library in your system.  You can do that too.</p>
+<p>This package supports Python 2.6, 2.7 and 3.1, 3.2 and 3.3 or higher versions.</p>
+<div class="section" id="installing-from-pypi-repository">
+<h2>Installing from PyPI repository<a class="headerlink" href="#installing-from-pypi-repository" title="Permalink to this headline">¶</a></h2>
+<p>Do:</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> easy_install -U blosc
+</pre></div>
+</div>
+<p>or:</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> pip install -U blosc
+</pre></div>
+</div>
+</div>
+<div class="section" id="building">
+<h2>Building<a class="headerlink" href="#building" title="Permalink to this headline">¶</a></h2>
+<p>There are different ways to compile python-blosc, depending if you want
+to link with an already installed Blosc library or not.</p>
+<div class="section" id="compiling-without-an-installed-blosc-library">
+<h3>Compiling without an installed Blosc library<a class="headerlink" href="#compiling-without-an-installed-blosc-library" title="Permalink to this headline">¶</a></h3>
+<p>python-blosc come with the Blosc sources with it so, assuming that you
+have a C compiler installed, do:</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> python setup.py build_ext --inplace
+</pre></div>
+</div>
+<p>That&#8217;s all.  You can proceed with testing section now.</p>
+</div>
+<div class="section" id="compiling-with-an-installed-blosc-library">
+<h3>Compiling with an installed Blosc library<a class="headerlink" href="#compiling-with-an-installed-blosc-library" title="Permalink to this headline">¶</a></h3>
+<p>In case you have Blosc installed as an external library (and disregard
+the included Blosc sources) you can link with it in a couple of ways.</p>
+<p>Using an environment variable:</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> <span class="nv">BLOSC_DIR</span><span class="o">=</span>/usr/local     <span class="o">(</span>or <span class="s2">&quot;set BLOSC_DIR=\blosc&quot;</span> on Win<span class="o">)</span>
+<span class="gp">$</span> <span class="nb">export </span>BLOSC_DIR         <span class="o">(</span>not needed on Win<span class="o">)</span>
+<span class="gp">$</span> python setup.py build_ext --inplace
+</pre></div>
+</div>
+<p>Using a flag:</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> python setup.py build_ext --inplace --blosc<span class="o">=</span>/usr/local
+</pre></div>
+</div>
+</div>
+<div class="section" id="generating-sphinx-documentation">
+<h3>Generating Sphinx documentation<a class="headerlink" href="#generating-sphinx-documentation" title="Permalink to this headline">¶</a></h3>
+<p>In case you want to generate the documentation locally, you will need to
+have the <tt class="docutils literal"><span class="pre">Sphinx</span></tt> documentation system, as well as the <tt class="docutils literal"><span class="pre">numpydoc</span></tt>
+extension, installed.  Then go down to <tt class="docutils literal"><span class="pre">doc/</span></tt> directory and do:</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> make html|latex|latexpdf
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="testing">
+<h2>Testing<a class="headerlink" href="#testing" title="Permalink to this headline">¶</a></h2>
+<p>After compiling, you can quickly check that the package is sane by
+running the doctests in <tt class="docutils literal"><span class="pre">blosc/test.py</span></tt>:</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> <span class="nv">PYTHONPATH</span><span class="o">=</span>.   <span class="o">(</span>or <span class="s2">&quot;set PYTHONPATH=.&quot;</span> on Win<span class="o">)</span>
+<span class="gp">$</span> <span class="nb">export </span><span class="nv">PYTHONPATH</span><span class="o">=</span>.  <span class="o">(</span>not needed on Win<span class="o">)</span>
+<span class="gp">$</span> python blosc/test.py  <span class="o">(</span>add -v <span class="k">for </span>verbose mode<span class="o">)</span>
+</pre></div>
+</div>
+<p>Or alternatively, you can use the third-party <tt class="docutils literal"><span class="pre">nosetests</span></tt> script to run both
+the doctests and the test suite:</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> nosetests --with-doctest <span class="o">(</span>add -v <span class="k">for </span>verbose mode<span class="o">)</span>
+</pre></div>
+</div>
+<p>Once installed, you can re-run the tests at any time with:</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> python -c <span class="s2">&quot;import blosc; blosc.test()&quot;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="installing">
+<h2>Installing<a class="headerlink" href="#installing" title="Permalink to this headline">¶</a></h2>
+<p>Install it as a typical Python package:</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> python setup.py install
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Installation</a><ul>
+<li><a class="reference internal" href="#installing-from-pypi-repository">Installing from PyPI repository</a></li>
+<li><a class="reference internal" href="#building">Building</a><ul>
+<li><a class="reference internal" href="#compiling-without-an-installed-blosc-library">Compiling without an installed Blosc library</a></li>
+<li><a class="reference internal" href="#compiling-with-an-installed-blosc-library">Compiling with an installed Blosc library</a></li>
+<li><a class="reference internal" href="#generating-sphinx-documentation">Generating Sphinx documentation</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#testing">Testing</a></li>
+<li><a class="reference internal" href="#installing">Installing</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="intro.html"
+                        title="previous chapter">Introduction</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="tutorial.html"
+                        title="next chapter">Tutorials</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/install.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="tutorial.html" title="Tutorials"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="intro.html" title="Introduction"
+             >previous</a> |</li>
+        <li><a href="index.html">python-blosc 1.2.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010,2014 Francesc Alted, Valentin Hänel, Continuum Analytics.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>
